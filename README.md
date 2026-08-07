@@ -6,6 +6,24 @@ de inicio y funciona sin internet. Todo se guarda en el propio teléfono; no hay
 
 Solo para mayores de edad, y solo entre dos personas que consienten.
 
+## Dónde está publicada
+
+**https://dracz888.github.io/SexPlay/**
+
+Ese link se puede abrir desde cualquier celular y pasárselo a quien sea. En el navegador del teléfono,
+con «Añadir a pantalla de inicio», queda como una app más y luego abre sin internet.
+
+Cada teléfono guarda **sus propios datos** (límites, cartas propias, partida en curso) en el
+almacenamiento interno del navegador. No se comparte nada entre teléfonos ni se sube nada a ningún
+servidor.
+
+La publicación es automática: cada push a la rama dispara el workflow `.github/workflows/deploy.yml`,
+que construye la app y la sube a GitHub Pages. La primera vez hay que entrar a
+**Settings → Pages** del repositorio y poner **Source: GitHub Actions**.
+
+> Si algún día cambias el nombre del repositorio, hay que cambiar también `BASE_EN_GITHUB_PAGES` en
+> `vite.config.ts`, porque la app cuelga de esa ruta.
+
 ## Cómo se juega
 
 1. **Advertencia** al abrir. Hay que aceptarla para entrar.
