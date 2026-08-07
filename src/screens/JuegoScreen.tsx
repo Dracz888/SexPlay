@@ -117,10 +117,6 @@ export function JuegoScreen({ onSalir, onTienda, onLimites }: Props) {
                     sesion.level === 5 ? '. Si sacas 6, ganas Intimidad.' : '.'
                   }`}
             </p>
-
-            <button type="button" className="boton boton--ancho" onClick={lanzar} disabled={girando}>
-              {caras === 0 ? 'Sacar carta' : 'Lanzar el dado'}
-            </button>
           </>
         )}
 
@@ -137,13 +133,6 @@ export function JuegoScreen({ onSalir, onTienda, onLimites }: Props) {
                 Ir a la tienda
               </button>
             </div>
-            <button
-              type="button"
-              className="boton boton--ancho"
-              onClick={() => dispatch({ type: 'game/endTurn' })}
-            >
-              Pasar el turno a {pareja.name}
-            </button>
           </>
         )}
 
@@ -166,27 +155,53 @@ export function JuegoScreen({ onSalir, onTienda, onLimites }: Props) {
 
             {sesion.notice && <div className="aviso">{sesion.notice}</div>}
 
-            <div className="botonera botonera--fila" style={{ width: '100%' }}>
-              <button
-                type="button"
-                className="boton"
-                onClick={() => dispatch({ type: 'game/endTurn' })}
-              >
-                Cumplido ♥
-              </button>
-              <button
-                type="button"
-                className="boton boton--fantasma"
-                onClick={() => dispatch({ type: 'game/endTurn' })}
-              >
-                Paso
-              </button>
-            </div>
             <p className="dado-info">Pasar no cuesta nada. Nadie tiene que hacer lo que no quiera.</p>
           </>
         )}
 
         {sesion.phase === 'listo' && sesion.notice && <div className="aviso">{sesion.notice}</div>}
+      </div>
+
+      <div className="acciones">
+        {sesion.phase === 'listo' && (
+          <button
+            type="button"
+            className="boton boton--ancho boton--grande"
+            onClick={lanzar}
+            disabled={girando}
+          >
+            {caras === 0 ? 'Sacar carta' : 'Lanzar el dado'}
+          </button>
+        )}
+
+        {sesion.phase === 'intimidad' && (
+          <button
+            type="button"
+            className="boton boton--ancho boton--grande"
+            onClick={() => dispatch({ type: 'game/endTurn' })}
+          >
+            Pasar el turno a {pareja.name}
+          </button>
+        )}
+
+        {sesion.phase === 'carta' && sesion.card && (
+          <div className="botonera botonera--fila">
+            <button
+              type="button"
+              className="boton boton--grande"
+              onClick={() => dispatch({ type: 'game/endTurn' })}
+            >
+              Cumplido ♥
+            </button>
+            <button
+              type="button"
+              className="boton boton--fantasma boton--grande"
+              onClick={() => dispatch({ type: 'game/endTurn' })}
+            >
+              Paso
+            </button>
+          </div>
+        )}
       </div>
 
       {confirmarNivel !== null && (

@@ -113,6 +113,14 @@
   width: 100%;
 }
 
+.boton--grande {
+  min-height: 72px;
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  padding: 20px 24px;
+}
+
 .boton-volver {
   appearance: none;
   border: 1px solid var(--borde);
@@ -138,6 +146,23 @@
 
 .botonera--fila > * {
   flex: 1;
+}
+
+/* Barra de acciones fija en la parte de abajo de la pantalla de juego. */
+.acciones {
+  position: sticky;
+  bottom: 0;
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 14px;
+  padding-bottom: 4px;
+  background: linear-gradient(180deg, rgba(26, 2, 9, 0) 0%, var(--fondo) 45%);
+}
+
+.acciones:empty {
+  display: none;
 }
 
 /* ---------- Paneles y tarjetas ---------- */
