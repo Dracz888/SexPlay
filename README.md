@@ -18,8 +18,11 @@ almacenamiento interno del navegador. No se comparte nada entre teléfonos ni se
 servidor.
 
 La publicación es automática: cada push a la rama dispara el workflow `.github/workflows/deploy.yml`,
-que construye la app y la sube a GitHub Pages. La primera vez hay que entrar a
-**Settings → Pages** del repositorio y poner **Source: GitHub Actions**.
+que construye la app y la sube a GitHub Pages.
+
+**Solo la primera vez**, hay que activar Pages a mano (GitHub no deja que lo haga el propio workflow):
+entra a **Settings → Pages** del repositorio y en *Build and deployment* pon **Source: GitHub Actions**.
+Después de eso, cada push publica solo.
 
 > Si algún día cambias el nombre del repositorio, hay que cambiar también `BASE_EN_GITHUB_PAGES` en
 > `vite.config.ts`, porque la app cuelga de esa ruta.
