@@ -95,6 +95,7 @@ export function App() {
           onLimites={() => irALimites('configuracion')}
           onCartas={() => setPantalla('cartas')}
           onSolicitudes={() => setPantalla('solicitudes')}
+          onBorrarTodo={() => setPantalla('advertencia')}
         />
       )}
 

@@ -17,6 +17,10 @@ Cada teléfono guarda **sus propios datos** (límites, cartas propias, partida e
 almacenamiento interno del navegador. No se comparte nada entre teléfonos ni se sube nada a ningún
 servidor.
 
+Desde **Configuración → Copia de seguridad** se pueden **exportar** esos datos a un archivo y volver a
+**importarlos** después: sirve para no perderlos al cambiar de teléfono y para pasarle tu
+configuración a otro celular.
+
 La publicación es automática: cada push a la rama dispara el workflow `.github/workflows/deploy.yml`,
 que construye la app y la sube a GitHub Pages.
 

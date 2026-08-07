@@ -1,20 +1,58 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Modal } from '../components/Modal';
 import { CATEGORIES } from '../data/categories';
 import { useGame } from '../state/GameContext';
+import { backupFileName, parseBackup } from '../state/storage';
+import type { PersistedState } from '../types';
 
 interface Props {
   onVolver: () => void;
   onLimites: () => void;
   onCartas: () => void;
   onSolicitudes: () => void;
+  /** Al borrar todo hay que volver al principio: ya no hay límites marcados. */
+  onBorrarTodo: () => void;
 }
 
-export function ConfiguracionScreen({ onVolver, onLimites, onCartas, onSolicitudes }: Props) {
+export function ConfiguracionScreen({
+  onVolver,
+  onLimites,
+  onCartas,
+  onSolicitudes,
+  onBorrarTodo,
+}: Props) {
   const { state, dispatch, availableCards } = useGame();
   const [confirmarBorrado, setConfirmarBorrado] = useState(false);
+  const [porImportar, setPorImportar] = useState<PersistedState | null>(null);
+  const [mensaje, setMensaje] = useState<string | null>(null);
+  const archivoRef = useRef<HTMLInputElement>(null);
 
   const permitidas = CATEGORIES.filter((c) => state.limits[c.id]).length;
+
+  const exportar = () => {
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const enlace = document.createElement('a');
+    enlace.href = url;
+    enlace.download = backupFileName();
+    enlace.click();
+    URL.revokeObjectURL(url);
+    setMensaje('Copia guardada en tus descargas. Guárdala donde no se te pierda.');
+  };
+
+  const elegirArchivo = async (evento: React.ChangeEvent<HTMLInputElement>) => {
+    const archivo = evento.target.files?.[0];
+    // Se limpia para poder volver a elegir el mismo archivo después.
+    evento.target.value = '';
+    if (!archivo) return;
+
+    const datos = parseBackup(await archivo.text());
+    if (datos) {
+      setPorImportar(datos);
+    } else {
+      setMensaje('Ese archivo no es una copia de SexPlay. No se cambió nada.');
+    }
+  };
 
   return (
     <div className="pantalla">
@@ -79,6 +117,40 @@ export function ConfiguracionScreen({ onVolver, onLimites, onCartas, onSolicitud
           </p>
         </div>
 
+        <div className="panel pila">
+          <div>
+            <strong>Copia de seguridad</strong>
+            <p className="articulo__desc" style={{ marginTop: 6 }}>
+              Guarda en un archivo tus límites, tus cartas y tus solicitudes. Sirve para no perderlos
+              si cambias de teléfono o si el navegador borra los datos, y para pasarle tu
+              configuración a otro celular.
+            </p>
+          </div>
+
+          <div className="botonera botonera--fila">
+            <button type="button" className="boton boton--suave boton--chico" onClick={exportar}>
+              Exportar
+            </button>
+            <button
+              type="button"
+              className="boton boton--suave boton--chico"
+              onClick={() => archivoRef.current?.click()}
+            >
+              Importar
+            </button>
+          </div>
+
+          <input
+            ref={archivoRef}
+            type="file"
+            accept="application/json,.json"
+            hidden
+            onChange={elegirArchivo}
+          />
+
+          {mensaje && <div className="aviso">{mensaje}</div>}
+        </div>
+
         <button
           type="button"
           className="boton boton--fantasma"
@@ -92,6 +164,32 @@ export function ConfiguracionScreen({ onVolver, onLimites, onCartas, onSolicitud
         </p>
       </div>
 
+      {porImportar && (
+        <Modal
+          titulo="¿Importar esta copia?"
+          confirmar="Sí, importar"
+          cancelar="Cancelar"
+          onCancelar={() => setPorImportar(null)}
+          onConfirmar={() => {
+            dispatch({ type: 'data/import', state: porImportar });
+            setPorImportar(null);
+            setMensaje('Listo, se importaron los datos de la copia.');
+          }}
+        >
+          <p className="texto">
+            Reemplaza lo que tienes ahora en este teléfono: los límites, las cartas que hayas creado,
+            las solicitudes y la partida en curso.
+          </p>
+          <p className="subtitulo">
+            La copia trae {CATEGORIES.filter((c) => porImportar.limits[c.id]).length} categorías
+            permitidas, {porImportar.customCards.length}{' '}
+            {porImportar.customCards.length === 1 ? 'carta propia' : 'cartas propias'} y{' '}
+            {porImportar.customShopItems.length}{' '}
+            {porImportar.customShopItems.length === 1 ? 'solicitud propia' : 'solicitudes propias'}.
+          </p>
+        </Modal>
+      )}
+
       {confirmarBorrado && (
         <Modal
           titulo="¿Borrar todo?"
@@ -101,7 +199,7 @@ export function ConfiguracionScreen({ onVolver, onLimites, onCartas, onSolicitud
           onConfirmar={() => {
             dispatch({ type: 'data/reset' });
             setConfirmarBorrado(false);
-            onVolver();
+            onBorrarTodo();
           }}
         >
           <p className="texto">

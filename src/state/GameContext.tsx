@@ -32,6 +32,7 @@ export type Action =
   | { type: 'shopItems/save'; item: ShopItem }
   | { type: 'shopItems/toggleDisabled'; itemId: string }
   | { type: 'shopItems/deleteCustom'; itemId: string }
+  | { type: 'data/import'; state: PersistedState }
   | { type: 'data/reset' };
 
 const other = (id: PlayerId): PlayerId => (id === 'p1' ? 'p2' : 'p1');
@@ -238,6 +239,9 @@ export function reducer(state: PersistedState, action: Action): PersistedState {
         customShopItems: state.customShopItems.filter((i) => i.id !== action.itemId),
         disabledShopItemIds: state.disabledShopItemIds.filter((id) => id !== action.itemId),
       };
+
+    case 'data/import':
+      return action.state;
 
     case 'data/reset':
       clearState();

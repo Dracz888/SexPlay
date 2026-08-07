@@ -32,23 +32,52 @@ export function initialState(): PersistedState {
   };
 }
 
+/** Completa lo que falte con los valores por defecto, venga de donde venga. */
+export function normalizeState(parsed: Partial<PersistedState>): PersistedState {
+  const base = initialState();
+
+  return {
+    ...base,
+    ...parsed,
+    version: VERSION,
+    // Si en una versión nueva aparecen categorías, entran apagadas sin romper lo guardado.
+    limits: { ...base.limits, ...(parsed.limits ?? {}) },
+  };
+}
+
 export function loadState(): PersistedState {
   try {
     const raw = localStorage.getItem(KEY);
     if (!raw) return initialState();
-
-    const parsed = JSON.parse(raw) as Partial<PersistedState>;
-    const base = initialState();
-
-    return {
-      ...base,
-      ...parsed,
-      version: VERSION,
-      // Si en una versión nueva aparecen categorías, entran apagadas sin romper lo guardado.
-      limits: { ...base.limits, ...(parsed.limits ?? {}) },
-    };
+    return normalizeState(JSON.parse(raw) as Partial<PersistedState>);
   } catch {
     return initialState();
+  }
+}
+
+/** Nombre del archivo de copia de seguridad, con la fecha de hoy. */
+export function backupFileName(): string {
+  return `sexplay-${new Date().toISOString().slice(0, 10)}.json`;
+}
+
+/**
+ * Lee un archivo exportado. Devuelve null si no es una copia de SexPlay,
+ * para no machacar los datos buenos con un archivo cualquiera.
+ */
+export function parseBackup(texto: string): PersistedState | null {
+  try {
+    const parsed: unknown = JSON.parse(texto);
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return null;
+
+    const datos = parsed as Partial<PersistedState>;
+    const pareceSexPlay =
+      typeof datos.limits === 'object' ||
+      Array.isArray(datos.customCards) ||
+      Array.isArray(datos.disabledCardIds);
+
+    return pareceSexPlay ? normalizeState(datos) : null;
+  } catch {
+    return null;
   }
 }
 
