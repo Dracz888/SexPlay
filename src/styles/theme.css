@@ -1,0 +1,160 @@
+:root {
+  /* Paleta: vino profundo, rojo encendido y rosa para los detalles. */
+  --fondo: #1a0209;
+  --fondo-alto: #2b0410;
+  --vino: #3d0716;
+  --rojo: #e0143c;
+  --rojo-oscuro: #a30b2a;
+  --rosa: #ff6b8a;
+  --rosa-suave: #ffb3c4;
+  --crema: #ffeef1;
+  --crema-tenue: rgba(255, 238, 241, 0.62);
+  --borde: rgba(255, 107, 138, 0.28);
+  --panel: rgba(61, 7, 22, 0.55);
+  --panel-alto: rgba(90, 12, 34, 0.72);
+  --sombra: 0 18px 40px rgba(0, 0, 0, 0.45);
+  --brillo: 0 0 28px rgba(224, 20, 60, 0.45);
+  --radio: 22px;
+  --radio-chico: 14px;
+  --ancho: 480px;
+  --fuente: 'Avenir Next', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--fuente);
+  color: var(--crema);
+  background:
+    radial-gradient(120% 80% at 50% -10%, #5a0a20 0%, rgba(90, 10, 32, 0) 60%),
+    radial-gradient(100% 60% at 100% 110%, #46081a 0%, rgba(70, 8, 26, 0) 55%),
+    var(--fondo);
+  background-attachment: fixed;
+  overscroll-behavior-y: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+/* ---------- Corazones de fondo ---------- */
+
+.corazones {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.corazones span {
+  position: absolute;
+  bottom: -60px;
+  color: var(--rojo);
+  opacity: 0.14;
+  animation: subir linear infinite;
+  font-size: 28px;
+  line-height: 1;
+}
+
+@keyframes subir {
+  0% {
+    transform: translateY(0) rotate(-8deg) scale(0.85);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.18;
+  }
+  88% {
+    opacity: 0.12;
+  }
+  100% {
+    transform: translateY(-115vh) rotate(12deg) scale(1.15);
+    opacity: 0;
+  }
+}
+
+@keyframes latido {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  14% {
+    transform: scale(1.07);
+  }
+  28% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(1.045);
+  }
+  56% {
+    transform: scale(1);
+  }
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes voltear {
+  from {
+    opacity: 0;
+    transform: rotateY(70deg) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes girar-dado {
+  0% {
+    transform: rotate(0) scale(1);
+  }
+  50% {
+    transform: rotate(200deg) scale(1.14);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
