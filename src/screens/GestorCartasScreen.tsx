@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { CATEGORIES, categoryLabel } from '../data/categories';
+import { categoryLabel } from '../data/categories';
 import { allCards } from '../engine/deck';
 import { previewCardText } from '../engine/text';
 import { useGame } from '../state/GameContext';
@@ -14,7 +14,7 @@ interface Props {
 const POR_PAGINA = 40;
 
 export function GestorCartasScreen({ onVolver, onNueva, onEditar }: Props) {
-  const { state, dispatch } = useGame();
+  const { state, dispatch, categories } = useGame();
   const [categoria, setCategoria] = useState('todas');
   const [nivel, setNivel] = useState('todos');
   const [tipo, setTipo] = useState('todos');
@@ -62,7 +62,7 @@ export function GestorCartasScreen({ onVolver, onNueva, onEditar }: Props) {
           aria-label="Categoría"
         >
           <option value="todas">Todas las categorías</option>
-          {CATEGORIES.map((c) => (
+          {categories.map((c) => (
             <option key={c.id} value={c.id}>
               {c.label}
             </option>
@@ -103,7 +103,7 @@ export function GestorCartasScreen({ onVolver, onNueva, onEditar }: Props) {
                     {carta.type === 'reto' ? 'Reto' : 'Pregunta'}
                   </span>
                   <span className="etiqueta">Nivel {carta.level}</span>
-                  <span className="etiqueta">{categoryLabel(carta.category)}</span>
+                  <span className="etiqueta">{categoryLabel(carta.category, state.customCategories)}</span>
                   {carta.custom && <span className="etiqueta etiqueta--propia">Propia</span>}
                   {oculta && <span className="etiqueta">Eliminada</span>}
                 </div>

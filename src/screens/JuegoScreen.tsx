@@ -174,7 +174,7 @@ export function JuegoScreen({ onSalir, onTienda, onLimites }: Props) {
               <p className="carta__texto">{fillCardText(sesion.card.text, enTurno, reparto)}</p>
 
               <div className="carta__pie">
-                <span className="carta__categoria">{categoryLabel(sesion.card.category)}</span>
+                <span className="carta__categoria">{categoryLabel(sesion.card.category, state.customCategories)}</span>
                 {sesion.mode === 'fiesta' && reparto.length > 0 && (
                   <span className="carta__reparto">
                     Le toca a {reparto.map((j) => j.name).join(' y ')}

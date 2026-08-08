@@ -7,11 +7,13 @@ import {
   type Dispatch,
   type ReactNode,
 } from 'react';
+import { allCategories } from '../data/categories';
 import { buildAvailableCards } from '../engine/deck';
 import type { DrawResult } from '../engine/deck';
 import { INTIMACY_PER_SIX } from '../engine/dice';
 import type { RollResult } from '../engine/dice';
 import type {
+  Category,
   GameMode,
   Level,
   Pairing,
@@ -38,6 +40,8 @@ export type Action =
   | { type: 'cards/toggleDisabled'; cardId: string }
   | { type: 'cards/save'; card: PlayCard }
   | { type: 'cards/deleteCustom'; cardId: string }
+  | { type: 'categories/save'; category: Category }
+  | { type: 'categories/deleteCustom'; categoryId: string }
   | { type: 'shopItems/save'; item: ShopItem }
   | { type: 'shopItems/toggleDisabled'; itemId: string }
   | { type: 'shopItems/deleteCustom'; itemId: string }
@@ -60,10 +64,10 @@ export function reducer(state: PersistedState, action: Action): PersistedState {
     }
 
     case 'limits/allowAll':
-      return { ...state, limits: allLimitsOn() };
+      return { ...state, limits: allLimitsOn(state.customCategories) };
 
     case 'limits/clearAll':
-      return { ...state, limits: emptyLimits() };
+      return { ...state, limits: emptyLimits(state.customCategories) };
 
     case 'onboarding/done':
       return { ...state, onboardingDone: true };
@@ -248,6 +252,35 @@ export function reducer(state: PersistedState, action: Action): PersistedState {
         disabledCardIds: state.disabledCardIds.filter((id) => id !== action.cardId),
       };
 
+    case 'categories/save': {
+      const existe = state.customCategories.some((c) => c.id === action.category.id);
+      return {
+        ...state,
+        customCategories: existe
+          ? state.customCategories.map((c) => (c.id === action.category.id ? action.category : c))
+          : [...state.customCategories, action.category],
+        // Una categoría recién creada entra permitida: si no, sus cartas no saldrían nunca.
+        limits: existe ? state.limits : { ...state.limits, [action.category.id]: true },
+      };
+    }
+
+    case 'categories/deleteCustom': {
+      // Se van con ella las cartas que vivían dentro: ya no tendrían dónde estar.
+      const suyas = new Set(
+        state.customCards.filter((c) => c.category === action.categoryId).map((c) => c.id),
+      );
+      const limits = { ...state.limits };
+      delete limits[action.categoryId];
+
+      return {
+        ...state,
+        customCategories: state.customCategories.filter((c) => c.id !== action.categoryId),
+        customCards: state.customCards.filter((c) => !suyas.has(c.id)),
+        disabledCardIds: state.disabledCardIds.filter((id) => !suyas.has(id)),
+        limits,
+      };
+    }
+
     case 'shopItems/save': {
       const exists = state.customShopItems.some((i) => i.id === action.item.id);
       return {
@@ -289,6 +322,8 @@ interface GameContextValue {
   dispatch: Dispatch<Action>;
   /** Cartas que pueden salir con los límites y las eliminaciones actuales. */
   availableCards: PlayCard[];
+  /** Las categorías de la app más las que creó la pareja. */
+  categories: Category[];
 }
 
 const GameContext = createContext<GameContextValue | null>(null);
@@ -310,7 +345,12 @@ export function GameProvider({ children }: { children: ReactNode }) {
     [state.limits, state.disabledCardIds, state.customCards],
   );
 
-  const value = useMemo(() => ({ state, dispatch, availableCards }), [state, availableCards]);
+  const categories = useMemo(() => allCategories(state.customCategories), [state.customCategories]);
+
+  const value = useMemo(
+    () => ({ state, dispatch, availableCards, categories }),
+    [state, availableCards, categories],
+  );
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;
 }

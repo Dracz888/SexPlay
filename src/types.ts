@@ -48,7 +48,13 @@ export interface Category {
   extras?: CategoryExtra[];
   /** Sus cartas solo salen en el modo Fiesta: hablan de más de dos personas. */
   partyOnly?: boolean;
+  /** La creó la pareja, no viene con la app. */
+  custom?: boolean;
 }
+
+/** Lo que cabe en el nombre y en la descripción de una categoría propia. */
+export const MAX_CATEGORY_LABEL = 40;
+export const MAX_CATEGORY_HINT = 160;
 
 export interface PlayCard {
   id: string;
@@ -119,6 +125,8 @@ export interface PersistedState {
   limits: Record<string, boolean>;
   /** Ids de cartas base ocultadas por la pareja. */
   disabledCardIds: string[];
+  /** Categorías que creó la pareja, además de las que trae la app. */
+  customCategories: Category[];
   customCards: PlayCard[];
   customShopItems: ShopItem[];
   disabledShopItemIds: string[];

@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { Modal } from '../components/Modal';
-import { CATEGORIES } from '../data/categories';
+import { allCategories } from '../data/categories';
 import { useGame } from '../state/GameContext';
 import { backupFileName, parseBackup } from '../state/storage';
 import type { PersistedState } from '../types';
@@ -21,13 +21,13 @@ export function ConfiguracionScreen({
   onSolicitudes,
   onBorrarTodo,
 }: Props) {
-  const { state, dispatch, availableCards } = useGame();
+  const { state, dispatch, availableCards, categories } = useGame();
   const [confirmarBorrado, setConfirmarBorrado] = useState(false);
   const [porImportar, setPorImportar] = useState<PersistedState | null>(null);
   const [mensaje, setMensaje] = useState<string | null>(null);
   const archivoRef = useRef<HTMLInputElement>(null);
 
-  const permitidas = CATEGORIES.filter((c) => state.limits[c.id]).length;
+  const permitidas = categories.filter((c) => state.limits[c.id]).length;
 
   const exportar = () => {
     const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
@@ -68,7 +68,7 @@ export function ConfiguracionScreen({
           <div className="articulo__cabecera">
             <span className="articulo__titulo">Lista de límites</span>
             <span className="articulo__precio">
-              {permitidas}/{CATEGORIES.length}
+              {permitidas}/{categories.length}
             </span>
           </div>
           <p className="articulo__desc">
@@ -188,7 +188,13 @@ export function ConfiguracionScreen({
             las solicitudes y la partida en curso.
           </p>
           <p className="subtitulo">
-            La copia trae {CATEGORIES.filter((c) => porImportar.limits[c.id]).length} categorías
+            La copia trae{' '}
+            {
+              allCategories(porImportar.customCategories).filter(
+                (c) => porImportar.limits[c.id],
+              ).length
+            }{' '}
+            categorías
             permitidas, {porImportar.customCards.length}{' '}
             {porImportar.customCards.length === 1 ? 'carta propia' : 'cartas propias'} y{' '}
             {porImportar.customShopItems.length}{' '}

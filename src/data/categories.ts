@@ -1,8 +1,10 @@
 import type { Category } from '../types';
+import { MAX_CATEGORY_HINT, MAX_CATEGORY_LABEL } from '../types';
 
 /**
  * Las categorías son a la vez la lista de límites y la organización del mazo.
  * Si una categoría está apagada, ninguna de sus cartas sale nunca.
+ * Estas son las que trae la app; la pareja puede añadir las suyas (customCategories).
  */
 export const CATEGORIES: Category[] = [
   {
@@ -168,17 +170,62 @@ export const PARTY_ONLY_CATEGORIES: Set<string> = new Set(
   CATEGORIES.filter((c) => c.partyOnly).map((c) => c.id),
 );
 
+/** Las de la app más las que creó la pareja, en ese orden. */
+export function allCategories(custom: Category[] = []): Category[] {
+  return [...CATEGORIES, ...custom];
+}
+
 /** Las que se ven en la lista de límites de una partida de este modo. */
-export function categoriesForMode(mode: 'pareja' | 'fiesta'): Category[] {
-  return mode === 'fiesta' ? CATEGORIES : CATEGORIES.filter((c) => !c.partyOnly);
+export function categoriesForMode(mode: 'pareja' | 'fiesta', custom: Category[] = []): Category[] {
+  const todas = allCategories(custom);
+  return mode === 'fiesta' ? todas : todas.filter((c) => !c.partyOnly);
 }
 
-/** Todos los interruptores de la lista: categorías + sus sub-opciones. */
-export const ALL_LIMIT_IDS: string[] = CATEGORIES.flatMap((c) => [
-  c.id,
-  ...(c.extras ?? []).map((e) => e.id),
-]);
-
-export function categoryLabel(id: string): string {
-  return CATEGORY_BY_ID[id]?.label ?? id;
+/** Todos los interruptores de una lista: las categorías + sus sub-opciones. */
+export function limitIdsFor(categories: Category[]): string[] {
+  return categories.flatMap((c) => [c.id, ...(c.extras ?? []).map((e) => e.id)]);
 }
+
+/** Los interruptores de las categorías que trae la app. */
+export const ALL_LIMIT_IDS: string[] = limitIdsFor(CATEGORIES);
+
+export function categoryLabel(id: string, custom: Category[] = []): string {
+  return CATEGORY_BY_ID[id]?.label ?? custom.find((c) => c.id === id)?.label ?? id;
+}
+
+/** Prefijo de las categorías propias, para que nunca choquen con las de la app. */
+const PREFIJO_PROPIA = 'propia-';
+
+/** "Juegos de agua" -> "juegos-de-agua", sin acentos ni signos raros. */
+function slug(label: string): string {
+  return label
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+/** Id libre para una categoría nueva: legible y sin repetir ninguno de los que ya hay. */
+export function newCategoryId(label: string, custom: Category[] = []): string {
+  const usados = new Set(allCategories(custom).map((c) => c.id));
+  const base = PREFIJO_PROPIA + (slug(label) || 'categoria');
+
+  let id = base;
+  let n = 2;
+  while (usados.has(id)) id = `${base}-${n++}`;
+
+  return id;
+}
+
+/** Recorta y limpia lo que escribió la pareja antes de guardarlo. */
+export function cleanCategoryLabel(label: string): string {
+  return label.trim().replace(/\s+/g, ' ').slice(0, MAX_CATEGORY_LABEL);
+}
+
+export function cleanCategoryHint(hint: string): string {
+  return hint.trim().replace(/\s+/g, ' ').slice(0, MAX_CATEGORY_HINT);
+}
+
+/** Descripción de relleno para las categorías propias que no traen una. */
+export const DEFAULT_CATEGORY_HINT = 'Categoría suya: aquí van las cartas que ustedes creen.';

@@ -35,8 +35,9 @@ Después de eso, cada push publica solo.
 ## Cómo se juega
 
 1. **Advertencia** al abrir. Hay que aceptarla para entrar.
-2. **Lista de límites** (solo la primera vez): 23 categorías con un interruptor cada una. Lo que quede
-   apagado no sale nunca. Hay botón «Permitir todo». Se puede cambiar después desde Configuración.
+2. **Lista de límites** (solo la primera vez): 23 categorías con un interruptor cada una, más las que
+   la pareja haya creado. Lo que quede apagado no sale nunca. Hay botón «Permitir todo». Se puede
+   cambiar después desde Configuración.
 3. **Menú**: el corazón del centro empieza la partida.
 4. **Modo de juego**: **Pareja** o **Fiesta**.
 5. **Quiénes juegan**:
@@ -87,8 +88,17 @@ campo opcional para etiquetas, género y gente mínima:
   Hetero o a Mix.
 
 Desde **Configuración → Preguntas y retos** se pueden ver todas las cartas con filtros y buscador,
-eliminar las que no gusten (y recuperarlas) y crear cartas propias. Las categorías están en
-`src/data/categories.ts` y la tienda en `src/data/shop.ts`.
+eliminar las que no gusten (y recuperarlas) y crear cartas propias. Las categorías que trae la app
+están en `src/data/categories.ts` y la tienda en `src/data/shop.ts`.
+
+### Categorías propias
+
+Al crear o editar una carta, el desplegable de **Categoría** trae la opción **«+ Crear una categoría
+nueva…»**: se le pone nombre y, si quieren, una descripción corta para la lista de límites. La
+categoría nueva se guarda en el teléfono (`customCategories`), **entra permitida** para que sus
+cartas salgan desde el primer momento, y aparece en la lista de límites con la etiqueta *Propia*.
+Desplegándola ahí se le puede **cambiar el nombre** o **borrarla**; al borrarla se van con ella las
+cartas propias que vivían dentro. Todo esto viaja en la copia de seguridad junto al resto.
 
 ## Desarrollo
 

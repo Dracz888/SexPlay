@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CATEGORIES } from '../data/categories';
+import { EditorCategoria } from '../components/EditorCategoria';
 import { useGame } from '../state/GameContext';
 import type { CardType, Gender, Level, PlayCard } from '../types';
 
@@ -10,15 +10,27 @@ interface Props {
 
 type Requisito = 'nadie' | 'hombre' | 'mujer';
 
+/** Valor del desplegable que abre la ventana para crear una categoría. */
+const NUEVA_CATEGORIA = '__nueva__';
+
 export function EditorCartaScreen({ carta, onListo }: Props) {
-  const { dispatch } = useGame();
+  const { dispatch, categories } = useGame();
   const [texto, setTexto] = useState(carta?.text ?? '');
   const [tipo, setTipo] = useState<CardType>(carta?.type ?? 'reto');
   const [nivel, setNivel] = useState<Level>(carta?.level ?? 1);
-  const [categoria, setCategoria] = useState(carta?.category ?? CATEGORIES[0].id);
+  const [categoria, setCategoria] = useState(carta?.category ?? categories[0].id);
+  const [creandoCategoria, setCreandoCategoria] = useState(false);
   const [requisito, setRequisito] = useState<Requisito>(
     carta?.targetGender ? (carta.targetGender as Requisito) : 'nadie',
   );
+
+  const elegirCategoria = (valor: string) => {
+    if (valor === NUEVA_CATEGORIA) {
+      setCreandoCategoria(true);
+    } else {
+      setCategoria(valor);
+    }
+  };
 
   const guardar = () => {
     const limpio = texto.trim();
@@ -104,20 +116,15 @@ export function EditorCartaScreen({ carta, onListo }: Props) {
           <select
             id="categoria-carta"
             value={categoria}
-            onChange={(e) => setCategoria(e.target.value)}
-            style={{
-              background: 'rgba(26, 2, 9, 0.6)',
-              border: '1px solid var(--borde)',
-              borderRadius: 'var(--radio-chico)',
-              padding: '13px 14px',
-              fontSize: 16,
-            }}
+            onChange={(e) => elegirCategoria(e.target.value)}
           >
-            {CATEGORIES.map((c) => (
+            {categories.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.label}
+                {c.custom ? ' (propia)' : ''}
               </option>
             ))}
+            <option value={NUEVA_CATEGORIA}>+ Crear una categoría nueva…</option>
           </select>
           <p className="contador">
             Si esa categoría está apagada en la lista de límites, la carta no va a salir. La
@@ -147,6 +154,17 @@ export function EditorCartaScreen({ carta, onListo }: Props) {
       <button type="button" className="boton" onClick={guardar} disabled={!texto.trim()}>
         Guardar carta ♥
       </button>
+
+      {creandoCategoria && (
+        <EditorCategoria
+          categoria={null}
+          onGuardada={(id) => {
+            setCategoria(id);
+            setCreandoCategoria(false);
+          }}
+          onCancelar={() => setCreandoCategoria(false)}
+        />
+      )}
     </div>
   );
 }

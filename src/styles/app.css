@@ -829,6 +829,12 @@
   vertical-align: middle;
 }
 
+/* Etiqueta que va pegada a un título, en la misma línea. */
+.etiqueta--enlinea {
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
 .item-carta__texto {
   font-size: 14px;
   line-height: 1.5;

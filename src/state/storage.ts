@@ -1,5 +1,11 @@
-import { ALL_LIMIT_IDS } from '../data/categories';
-import type { Gender, PersistedState, Player, Session } from '../types';
+import {
+  CATEGORY_BY_ID,
+  allCategories,
+  cleanCategoryHint,
+  cleanCategoryLabel,
+  limitIdsFor,
+} from '../data/categories';
+import type { Category, Gender, PersistedState, Player, Session } from '../types';
 import { MIN_PARTY_PLAYERS } from '../types';
 
 const KEY = 'sexplay:v1';
@@ -28,12 +34,12 @@ export function defaultPartyPlayers(): Player[] {
 }
 
 /** Todo empieza apagado: la pareja marca lo que sí quiere. */
-export function emptyLimits(): Record<string, boolean> {
-  return Object.fromEntries(ALL_LIMIT_IDS.map((id) => [id, false]));
+export function emptyLimits(customCategories: Category[] = []): Record<string, boolean> {
+  return Object.fromEntries(limitIdsFor(allCategories(customCategories)).map((id) => [id, false]));
 }
 
-export function allLimitsOn(): Record<string, boolean> {
-  return Object.fromEntries(ALL_LIMIT_IDS.map((id) => [id, true]));
+export function allLimitsOn(customCategories: Category[] = []): Record<string, boolean> {
+  return Object.fromEntries(limitIdsFor(allCategories(customCategories)).map((id) => [id, true]));
 }
 
 export function initialState(): PersistedState {
@@ -42,6 +48,7 @@ export function initialState(): PersistedState {
     onboardingDone: false,
     limits: emptyLimits(),
     disabledCardIds: [],
+    customCategories: [],
     customCards: [],
     customShopItems: [],
     disabledShopItemIds: [],
@@ -82,16 +89,50 @@ function normalizeSession(session: Partial<Session> | null | undefined): Session
   };
 }
 
+/**
+ * Deja solo categorías propias con forma válida y sin repetir: lo guardado puede venir
+ * de un archivo importado que tocó cualquiera.
+ */
+function normalizeCategories(lista: unknown): Category[] {
+  if (!Array.isArray(lista)) return [];
+
+  const vistos = new Set<string>();
+  const limpias: Category[] = [];
+
+  for (const cruda of lista) {
+    if (typeof cruda !== 'object' || cruda === null) continue;
+
+    const { id, label, hint } = cruda as Partial<Category>;
+    if (typeof id !== 'string' || typeof label !== 'string') continue;
+
+    const nombre = cleanCategoryLabel(label);
+    // Una categoría propia nunca puede pisar a una de la app ni repetirse.
+    if (!id.trim() || !nombre || CATEGORY_BY_ID[id] || vistos.has(id)) continue;
+
+    vistos.add(id);
+    limpias.push({
+      id,
+      label: nombre,
+      hint: typeof hint === 'string' ? cleanCategoryHint(hint) : '',
+      custom: true,
+    });
+  }
+
+  return limpias;
+}
+
 /** Completa lo que falte con los valores por defecto, venga de donde venga. */
 export function normalizeState(parsed: Partial<PersistedState>): PersistedState {
   const base = initialState();
+  const customCategories = normalizeCategories(parsed.customCategories);
 
   return {
     ...base,
     ...parsed,
     version: VERSION,
+    customCategories,
     // Si en una versión nueva aparecen categorías, entran apagadas sin romper lo guardado.
-    limits: { ...base.limits, ...(parsed.limits ?? {}) },
+    limits: { ...emptyLimits(customCategories), ...(parsed.limits ?? {}) },
     lastPairing: parsed.lastPairing === 'hetero' ? 'hetero' : 'mix',
     session: normalizeSession(parsed.session),
   };

@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
+import { EditorCategoria } from '../components/EditorCategoria';
 import { Interruptor } from '../components/Interruptor';
-import { CATEGORIES } from '../data/categories';
+import { Modal } from '../components/Modal';
 import { useGame } from '../state/GameContext';
+import type { Category } from '../types';
 
 interface Props {
   primeraVez: boolean;
@@ -9,16 +11,23 @@ interface Props {
 }
 
 export function LimitesScreen({ primeraVez, onListo }: Props) {
-  const { state, dispatch, availableCards } = useGame();
+  const { state, dispatch, availableCards, categories } = useGame();
   const [abierta, setAbierta] = useState<string | null>(null);
+  const [renombrando, setRenombrando] = useState<Category | null>(null);
+  const [porBorrar, setPorBorrar] = useState<Category | null>(null);
 
   const permitidas = useMemo(
-    () => CATEGORIES.filter((c) => state.limits[c.id]).length,
-    [state.limits],
+    () => categories.filter((c) => state.limits[c.id]).length,
+    [categories, state.limits],
   );
 
+  /** Cuántas cartas propias se irían con la categoría que está a punto de borrarse. */
+  const cartasDeLaBorrada = porBorrar
+    ? state.customCards.filter((c) => c.category === porBorrar.id).length
+    : 0;
+
   const cambiarCategoria = (id: string, valor: boolean) => {
-    const categoria = CATEGORIES.find((c) => c.id === id);
+    const categoria = categories.find((c) => c.id === id);
     const ids = [id, ...(valor ? [] : (categoria?.extras ?? []).map((e) => e.id))];
     dispatch({ type: 'limits/set', ids, value: valor });
   };
@@ -34,7 +43,7 @@ export function LimitesScreen({ primeraVez, onListo }: Props) {
         <div className="crecer">
           <h2>Hasta dónde llegamos</h2>
           <p className="contador">
-            {permitidas} de {CATEGORIES.length} categorías permitidas · {availableCards.length} cartas
+            {permitidas} de {categories.length} categorías permitidas · {availableCards.length} cartas
             activas
           </p>
         </div>
@@ -64,9 +73,11 @@ export function LimitesScreen({ primeraVez, onListo }: Props) {
       </div>
 
       <div className="scroll">
-        {CATEGORIES.map((categoria) => {
+        {categories.map((categoria) => {
           const activa = Boolean(state.limits[categoria.id]);
           const abiertaEsta = abierta === categoria.id;
+          // Las propias también se despliegan, para poder cambiarles el nombre o borrarlas.
+          const desplegable = Boolean(categoria.extras?.length) || Boolean(categoria.custom);
 
           return (
             <div className="categoria" key={categoria.id}>
@@ -82,7 +93,10 @@ export function LimitesScreen({ primeraVez, onListo }: Props) {
                     {categoria.partyOnly && (
                       <span className="etiqueta etiqueta--fiesta">Solo en Fiesta</span>
                     )}
-                    {categoria.extras && <span className="contador"> {abiertaEsta ? '▾' : '▸'}</span>}
+                    {categoria.custom && (
+                      <span className="etiqueta etiqueta--propia etiqueta--enlinea">Propia</span>
+                    )}
+                    {desplegable && <span className="contador"> {abiertaEsta ? '▾' : '▸'}</span>}
                   </div>
                   <div className="categoria__hint">{categoria.hint}</div>
                 </button>
@@ -94,9 +108,9 @@ export function LimitesScreen({ primeraVez, onListo }: Props) {
                 />
               </div>
 
-              {abiertaEsta && categoria.extras && (
+              {abiertaEsta && desplegable && (
                 <div className="categoria__cuerpo">
-                  {categoria.extras.map((extra) => (
+                  {(categoria.extras ?? []).map((extra) => (
                     <div className="extra" key={extra.id}>
                       <span className="crecer">{extra.label}</span>
                       <Interruptor
@@ -113,6 +127,25 @@ export function LimitesScreen({ primeraVez, onListo }: Props) {
                       />
                     </div>
                   ))}
+
+                  {categoria.custom && (
+                    <div className="botonera botonera--fila">
+                      <button
+                        type="button"
+                        className="boton boton--suave boton--chico"
+                        onClick={() => setRenombrando(categoria)}
+                      >
+                        Cambiar nombre
+                      </button>
+                      <button
+                        type="button"
+                        className="boton boton--fantasma boton--chico"
+                        onClick={() => setPorBorrar(categoria)}
+                      >
+                        Borrar categoría
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -130,6 +163,36 @@ export function LimitesScreen({ primeraVez, onListo }: Props) {
       >
         {primeraVez ? 'Listo, al juego ♥' : 'Guardar y volver'}
       </button>
+
+      {renombrando && (
+        <EditorCategoria
+          categoria={renombrando}
+          onGuardada={() => setRenombrando(null)}
+          onCancelar={() => setRenombrando(null)}
+        />
+      )}
+
+      {porBorrar && (
+        <Modal
+          titulo={`¿Borrar "${porBorrar.label}"?`}
+          confirmar="Sí, borrarla"
+          cancelar="Cancelar"
+          onCancelar={() => setPorBorrar(null)}
+          onConfirmar={() => {
+            dispatch({ type: 'categories/deleteCustom', categoryId: porBorrar.id });
+            if (abierta === porBorrar.id) setAbierta(null);
+            setPorBorrar(null);
+          }}
+        >
+          <p className="texto">
+            {cartasDeLaBorrada === 0
+              ? 'La categoría no tiene ninguna carta, así que no se pierde nada más.'
+              : cartasDeLaBorrada === 1
+                ? 'Se borra también la carta que tienen dentro.'
+                : `Se borran también las ${cartasDeLaBorrada} cartas que tienen dentro.`}
+          </p>
+        </Modal>
+      )}
     </div>
   );
 }
