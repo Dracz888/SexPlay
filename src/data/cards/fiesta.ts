@@ -161,7 +161,7 @@ export const fiesta = deck(
     [3, 'Ponte detrás de {pareja} y bésale la nuca y los hombros mientras el grupo mira en silencio.', { tags: ['fiesta.besos'] }],
     [3, 'Dile al oído a {pareja} lo que quieres hacerle. Después {pareja} se lo repite al grupo en voz alta.'],
     [3, 'Deja que el grupo vote a quién de la sala tienes que besar. Se hace lo que salga de la votación.', { tags: ['fiesta.besos'] }],
-    [3, 'Muérdele el labio a {pareja} y no la sueltes hasta que alguien del grupo diga basta.', { tags: ['fiesta.besos'] }],
+    [3, 'Muérdele el labio a {pareja} y no l{p} sueltes hasta que alguien del grupo diga basta.', { tags: ['fiesta.besos'] }],
     [3, 'Quítale la camisa a {pareja} usando una sola mano.'],
     [3, 'Baila pegad{a} con {pareja} y con {otro} a la vez, tú en medio de los dos, una canción entera.'],
     [3, 'Deja que {pareja} te ate las manos y te deje así durante dos rondas.', { tags: ['ataduras'] }],
@@ -194,7 +194,7 @@ export const fiesta = deck(
     [4, 'Elige a dos del grupo: uno te quita una prenda y el otro te besa la piel que quedó al aire.', { tags: ['fiesta.besos', 'fiesta.desnudo'] }],
     [4, 'Que {pareja} te lama de la clavícula al ombligo mientras el grupo cuenta hasta veinte.', { tags: ['fiesta.besos'] }],
     [4, 'Ponte a cuatro patas y deja que {pareja} te dé diez nalgadas mientras el grupo las cuenta.', { tags: ['azotes'] }],
-    [4, 'Deja que el grupo decida a quién de la sala le tienes que quitar la ropa hasta dejarl{p} en ropa interior.', { tags: ['fiesta.desnudo', 'fiesta.cruzado'], minPlayers: 4 }],
+    [4, 'Deja que el grupo decida a quién de la sala le quitas la ropa, hasta dejar a esa persona en ropa interior.', { tags: ['fiesta.desnudo', 'fiesta.cruzado'], minPlayers: 4 }],
 
     // ---------- Nivel 5: lo que se cuenta al día siguiente ----------
     [5, 'Masturbate delante de todos mientras el grupo cuenta hasta sesenta. Nadie te puede tocar.', { tags: ['fiesta.masturbacion'] }],
