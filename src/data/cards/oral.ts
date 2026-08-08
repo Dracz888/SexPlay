@@ -6,7 +6,7 @@ export const oral = deck(
     [2, 'Susúrrale al oído a {pareja} qué te gustaría hacerle con su verga, y acaríciasela de forma juguetona por encima de la ropa.', { targetGender: 'hombre' }],
     [2, 'Susúrrale al oído a {pareja} qué te gustaría hacerle con la lengua entre las piernas, y acaríciala por encima de la ropa mientras se lo dices.', { targetGender: 'mujer' }],
     [2, 'Pregúntale a {pareja} qué prefiere: dar o recibir sexo oral. Que te explique por qué con detalles.'],
-    [2, 'Confiésale a {pareja} en qué momento del día de hoy pensaste en tenerlo en la boca.'],
+    [2, 'Confiésale a {pareja} en qué momento del día de hoy pensaste en tenerlo en la boca.', { targetGender: 'hombre' }],
     [3, 'Métele un dedo en la boca a {pareja} y pregúntale qué le gustaría estar chupando en vez de tu dedo.'],
     [3, 'Pregúntale a {pareja} qué es lo que más le gusta de cómo se lo haces con la boca, y qué le cambiaría.'],
     [3, 'Pregúntale a {pareja} cuánto tiempo cree que aguantaría si te pones ahora mismo de rodillas. Que ponga un número.'],
@@ -15,7 +15,7 @@ export const oral = deck(
     [5, 'Cuéntale a {pareja} tu fantasía más sucia con la boca de alguno de los dos. Todos los detalles, sin saltarte nada.'],
   ],
   [
-    [2, 'Chúpale los dedos a {pareja} uno por uno, mirándola a los ojos.'],
+    [2, 'Chúpale los dedos a {pareja} uno por uno, mirándol{p} a los ojos.'],
     [2, 'Lámele el cuello y la clavícula a {pareja} durante treinta segundos.'],
     [3, 'Ponte de rodillas frente a {pareja} y bésale por encima de la ropa interior durante un minuto, sin quitársela.'],
     [3, 'Lámele el abdomen a {pareja} bajando hasta el borde de la ropa interior. Ahí te detienes y esperas.'],

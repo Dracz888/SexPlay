@@ -11,7 +11,7 @@ export const lugares = deck(
     [3, 'Pregúntale a {pareja} en qué lugar público se ha imaginado contigo.'],
     [4, 'Pregúntale a {pareja} si se atrevería a hacerlo hoy en un sitio donde pudieran pillarlos.'],
     [4, 'Pregúntale a {pareja} qué haría si les tocaran la puerta justo ahora, a mitad de todo.'],
-    [4, 'Pregúntale a {pareja} qué tan callada puede estar si hay que estarlo. Que lo demuestre después.'],
+    [4, 'Pregúntale a {pareja} qué tan callad{p} puede estar si hay que estarlo. Que lo demuestre después.'],
     [5, 'Pregúntale a {pareja} cuál es su fantasía con el riesgo que nunca se atrevería a cumplir de verdad.'],
   ],
   [
@@ -19,7 +19,7 @@ export const lugares = deck(
     [2, 'Terminen este turno en la cocina, apoyados en el mesón.'],
     [2, 'Métanse los dos a la ducha, aunque sea con ropa, y bésense bajo el agua.'],
     [3, 'Hagan lo que salga en la próxima carta de pie contra una pared.'],
-    [3, 'Que {pareja} se siente en el mesón de la cocina y tú te ocupes de ella ahí.'],
+    [3, 'Sienta a {pareja} en el mesón de la cocina y ocúpate ahí de todo.'],
     [3, 'Terminen el turno en el suelo, sin cama ni sofá.'],
     [3, 'Salgan al balcón o a la ventana y bésense ahí, con la ropa que tengan.', { tags: ['lugares.exterior'] }],
     [4, 'Dúchense juntos y desnudos, y que uno le enjabone todo el cuerpo al otro.'],
@@ -28,7 +28,7 @@ export const lugares = deck(
     [4, 'Hagan el próximo reto en silencio absoluto, como si hubiera alguien durmiendo al lado.'],
     [5, 'Cójanse en la ducha con el agua corriendo.', { tags: ['sexo'] }],
     [5, 'Terminen este turno en el balcón o junto a una ventana abierta.', { tags: ['lugares.exterior'] }],
-    [5, 'Hazle a {pareja} lo que quieras en la cocina, con ella sentada en el mesón.', { tags: ['sexo'] }],
+    [5, 'Hazle a {pareja} lo que quieras en la cocina, sentad{p} en el mesón.', { tags: ['sexo'] }],
     [5, 'Sexo en el carro, en el asiento de atrás.', { tags: ['sexo', 'lugares.exterior'] }],
   ],
 );
