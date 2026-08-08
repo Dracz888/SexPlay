@@ -92,10 +92,6 @@ export function GestorCartasScreen({ onVolver, onNueva, onEditar }: Props) {
         />
       </div>
 
-      <button type="button" className="boton" onClick={onNueva}>
-        Crear una carta nueva ♥
-      </button>
-
       <div className="scroll">
         {filtradas.slice(0, visibles).map((carta) => {
           const oculta = ocultas.has(carta.id);
@@ -160,6 +156,12 @@ export function GestorCartasScreen({ onVolver, onNueva, onEditar }: Props) {
         )}
 
         {filtradas.length === 0 && <p className="subtitulo centrado">No hay cartas con esos filtros.</p>}
+      </div>
+
+      <div className="acciones">
+        <button type="button" className="boton boton--ancho" onClick={onNueva}>
+          Crear una carta nueva ♥
+        </button>
       </div>
     </div>
   );
