@@ -13,7 +13,7 @@ export function MenuScreen({ onJugar, onNuevaPartida, onConfiguracion }: Props) 
   return (
     <div className="pantalla pantalla--centro">
       <h1 className="titulo-marca">SexPlay</h1>
-      <p className="subtitulo">Un teléfono, dos personas, cinco niveles.</p>
+      <p className="subtitulo">Un teléfono, cinco niveles. En pareja o en fiesta.</p>
 
       <div className="corazon-envoltura">
         <button

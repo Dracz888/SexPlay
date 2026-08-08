@@ -230,6 +230,88 @@
   margin: 8px 0;
 }
 
+/* ---------- Elegir modo: Pareja o Fiesta ---------- */
+
+.modo {
+  appearance: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  padding: 18px;
+  background: linear-gradient(165deg, var(--panel-alto), var(--panel));
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.modo:active {
+  border-color: var(--rojo);
+  box-shadow: var(--brillo);
+}
+
+.modo__cabecera {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.modo__titulo {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--crema);
+}
+
+.modo__gente {
+  font-size: 12px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--rosa);
+}
+
+.modo__texto {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--crema-tenue);
+}
+
+/* ---------- Lista de invitados de la fiesta ---------- */
+
+.invitado {
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-chico);
+  background: var(--panel);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.invitado__fila {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.invitado__fila input {
+  flex: 1;
+  min-width: 0;
+  background: rgba(26, 2, 9, 0.6);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-chico);
+  padding: 12px 14px;
+  font-size: 16px;
+  outline: none;
+}
+
+.invitado__fila input:focus {
+  border-color: var(--rojo);
+}
+
 /* ---------- Barra de nivel ---------- */
 
 .nivel {
@@ -299,6 +381,25 @@
   gap: 10px;
 }
 
+/* Con mucha gente los marcadores se reparten en varias filas y se hacen chicos. */
+.jugadores--fiesta {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.jugadores--fiesta .jugador {
+  flex: 1 1 90px;
+  padding: 8px 10px;
+}
+
+.jugadores--fiesta .jugador__nombre {
+  font-size: 13px;
+}
+
+.jugadores--fiesta .jugador__intimidad {
+  font-size: 12px;
+}
+
 .jugador {
   flex: 1;
   border: 1px solid var(--borde);
@@ -312,6 +413,12 @@
 .jugador--turno {
   border-color: var(--rojo);
   box-shadow: var(--brillo);
+  background: var(--panel-alto);
+}
+
+/* A quién le tocó con la carta que está en la mesa. */
+.jugador--elegido {
+  border-color: var(--rosa);
   background: var(--panel-alto);
 }
 
@@ -396,10 +503,25 @@
   font-weight: 600;
 }
 
+.carta__pie {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .carta__categoria {
   font-size: 12px;
   color: var(--crema-tenue);
   letter-spacing: 0.6px;
+}
+
+.carta__reparto {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--rosa);
+  letter-spacing: 0.4px;
 }
 
 /* ---------- Lista de límites ---------- */
@@ -548,6 +670,7 @@
 .opciones {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .opcion {
@@ -561,6 +684,13 @@
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+}
+
+/* La fila de jugadores de la tienda: en Fiesta pueden ser muchos y tienen que caber. */
+.opciones--jugadores .opcion {
+  flex: 1 1 104px;
+  font-size: 13px;
+  padding: 10px 8px;
 }
 
 .opcion[data-activa='true'] {
@@ -690,6 +820,13 @@
 .etiqueta--propia {
   color: #ffd479;
   border-color: rgba(255, 212, 121, 0.5);
+}
+
+.etiqueta--fiesta {
+  color: var(--rosa);
+  border-color: var(--rojo);
+  margin-left: 8px;
+  vertical-align: middle;
 }
 
 .item-carta__texto {

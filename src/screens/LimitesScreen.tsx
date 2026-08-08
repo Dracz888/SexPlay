@@ -42,7 +42,8 @@ export function LimitesScreen({ primeraVez, onListo }: Props) {
 
       <p className="subtitulo">
         Marquen juntos lo que sí se permite. Lo que quede apagado no va a salir nunca durante el
-        juego. Pueden cambiarlo cuando quieran desde Configuración.
+        juego. Pueden cambiarlo cuando quieran desde Configuración. Las categorías marcadas como
+        <strong> Solo en Fiesta</strong> únicamente salen en las partidas de tres personas o más.
       </p>
 
       <div className="botonera botonera--fila">
@@ -78,6 +79,9 @@ export function LimitesScreen({ primeraVez, onListo }: Props) {
                 >
                   <div className="categoria__label">
                     {categoria.label}
+                    {categoria.partyOnly && (
+                      <span className="etiqueta etiqueta--fiesta">Solo en Fiesta</span>
+                    )}
                     {categoria.extras && <span className="contador"> {abiertaEsta ? '▾' : '▸'}</span>}
                   </div>
                   <div className="categoria__hint">{categoria.hint}</div>

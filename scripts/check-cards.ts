@@ -2,11 +2,18 @@
  * Revisa el mazo: conteos por categoría, ids repetidos y etiquetas que no existan.
  * Se ejecuta con `npm run check:cards`.
  */
-import { ALL_LIMIT_IDS, CATEGORIES } from '../src/data/categories';
+import { ALL_LIMIT_IDS, CATEGORIES, PARTY_ONLY_CATEGORIES } from '../src/data/categories';
 import { BASE_CARDS } from '../src/data/cards';
+import { castSize } from '../src/engine/deck';
+import { TEXT_MARKS } from '../src/engine/text';
+
+const POR_CATEGORIA: Record<string, { preguntas: number; retos: number }> = {
+  licor: { preguntas: 10, retos: 30 },
+  fiesta: { preguntas: 70, retos: 120 },
+};
 
 const ESPERADO: Record<string, { preguntas: number; retos: number }> = Object.fromEntries(
-  CATEGORIES.map((c) => [c.id, c.id === 'licor' ? { preguntas: 10, retos: 30 } : { preguntas: 10, retos: 15 }]),
+  CATEGORIES.map((c) => [c.id, POR_CATEGORIA[c.id] ?? { preguntas: 10, retos: 15 }]),
 );
 
 const limites = new Set(ALL_LIMIT_IDS);
@@ -26,10 +33,17 @@ for (const carta of BASE_CARDS) {
   if (carta.level < 1 || carta.level > 5) errores.push(`${carta.id}: nivel fuera de rango`);
   if (!carta.text.trim()) errores.push(`${carta.id}: sin texto`);
 
-  for (const marca of carta.text.match(/\{[a-z]+\}/g) ?? []) {
-    if (!['{actor}', '{pareja}', '{a}', '{p}'].includes(marca)) {
-      errores.push(`${carta.id}: marca desconocida ${marca}`);
-    }
+  for (const marca of carta.text.match(/\{[a-z0-9]+\}/g) ?? []) {
+    if (!TEXT_MARKS.includes(marca)) errores.push(`${carta.id}: marca desconocida ${marca}`);
+  }
+
+  // Las cartas que nombran a un tercero solo pueden vivir en el modo Fiesta.
+  if (castSize(carta) > 1 && !PARTY_ONLY_CATEGORIES.has(carta.category)) {
+    errores.push(`${carta.id}: nombra a {otro} pero no está en una categoría de Fiesta`);
+  }
+
+  if (carta.minPlayers !== undefined && carta.minPlayers < 2) {
+    errores.push(`${carta.id}: minPlayers tiene que ser 2 o más`);
   }
 }
 

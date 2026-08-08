@@ -1,12 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { BarraNivel } from '../components/BarraNivel';
 import { Modal } from '../components/Modal';
 import { categoryLabel } from '../data/categories';
 import { drawCard } from '../engine/deck';
+import type { Table } from '../engine/deck';
 import { facesForLevel, INTIMACY_PER_SIX, rollForLevel } from '../engine/dice';
 import { fillCardText } from '../engine/text';
 import { useGame } from '../state/GameContext';
-import type { Level } from '../types';
+import type { Level, Player } from '../types';
 
 interface Props {
   onSalir: () => void;
@@ -27,7 +28,16 @@ export function JuegoScreen({ onSalir, onTienda, onLimites }: Props) {
     if (temporizador.current) window.clearTimeout(temporizador.current);
   }, []);
 
-  if (!sesion) {
+  /** La mesa tal como está ahora: hace falta para saber qué cartas encajan. */
+  const mesa: Table | null = useMemo(
+    () =>
+      sesion
+        ? { mode: sesion.mode, pairing: sesion.pairing, players: sesion.players }
+        : null,
+    [sesion],
+  );
+
+  if (!sesion || !mesa) {
     return (
       <div className="pantalla pantalla--centro">
         <p className="texto">No hay ninguna partida abierta.</p>
@@ -39,7 +49,13 @@ export function JuegoScreen({ onSalir, onTienda, onLimites }: Props) {
   }
 
   const enTurno = sesion.players.find((j) => j.id === sesion.turn)!;
-  const pareja = sesion.players.find((j) => j.id !== sesion.turn)!;
+  /** A quién le tocó con la carta que está sobre la mesa, en el orden de la carta. */
+  const reparto = sesion.cast
+    .map((id) => sesion.players.find((j) => j.id === id))
+    .filter((j): j is Player => Boolean(j));
+  const siguiente = sesion.players[
+    (sesion.players.findIndex((j) => j.id === sesion.turn) + 1) % sesion.players.length
+  ];
   const caras = facesForLevel(sesion.level);
   const valesSinUsar = sesion.vouchers.filter((v) => !v.usedAt).length;
 
@@ -52,7 +68,7 @@ export function JuegoScreen({ onSalir, onTienda, onLimites }: Props) {
       const sacada =
         tirada.cardLevel === null
           ? null
-          : drawCard(availableCards, tirada.cardLevel, enTurno, pareja, sesion.usedByBag);
+          : drawCard(availableCards, tirada.cardLevel, enTurno, mesa, sesion.usedByBag);
 
       dispatch({ type: 'game/rolled', roll: tirada, draw: sacada });
       setGirando(false);
@@ -74,7 +90,11 @@ export function JuegoScreen({ onSalir, onTienda, onLimites }: Props) {
           ☰
         </button>
         <div className="crecer centrado">
-          <span className="contador">Turno {sesion.turnCount + 1}</span>
+          <span className="contador">
+            Turno {sesion.turnCount + 1}
+            {sesion.mode === 'fiesta' &&
+              ` · Fiesta de ${sesion.players.length} · ${sesion.pairing === 'hetero' ? 'Hetero' : 'Mix'}`}
+          </span>
         </div>
         <button type="button" className="boton-volver" onClick={onTienda} aria-label="Tienda">
           ♦
@@ -87,16 +107,19 @@ export function JuegoScreen({ onSalir, onTienda, onLimites }: Props) {
         onBajar={() => cambiarNivel(Math.max(1, sesion.level - 1) as Level)}
       />
 
-      <div className="jugadores">
-        {sesion.players.map((jugador) => (
-          <div
-            key={jugador.id}
-            className={jugador.id === sesion.turn ? 'jugador jugador--turno' : 'jugador'}
-          >
-            <div className="jugador__nombre">{jugador.name}</div>
-            <div className="jugador__intimidad">♥ {jugador.intimidad} de Intimidad</div>
-          </div>
-        ))}
+      <div className={sesion.players.length > 2 ? 'jugadores jugadores--fiesta' : 'jugadores'}>
+        {sesion.players.map((jugador) => {
+          const clases = ['jugador'];
+          if (jugador.id === sesion.turn) clases.push('jugador--turno');
+          else if (sesion.cast.includes(jugador.id)) clases.push('jugador--elegido');
+
+          return (
+            <div key={jugador.id} className={clases.join(' ')}>
+              <div className="jugador__nombre">{jugador.name}</div>
+              <div className="jugador__intimidad">♥ {jugador.intimidad}</div>
+            </div>
+          );
+        })}
       </div>
 
       <div className="scroll" style={{ justifyContent: 'center', alignItems: 'center', gap: 18 }}>
@@ -148,9 +171,16 @@ export function JuegoScreen({ onSalir, onTienda, onLimites }: Props) {
                 <span className="carta__nivel">Nivel {sesion.card.level}</span>
               </div>
 
-              <p className="carta__texto">{fillCardText(sesion.card.text, enTurno, pareja)}</p>
+              <p className="carta__texto">{fillCardText(sesion.card.text, enTurno, reparto)}</p>
 
-              <span className="carta__categoria">{categoryLabel(sesion.card.category)}</span>
+              <div className="carta__pie">
+                <span className="carta__categoria">{categoryLabel(sesion.card.category)}</span>
+                {sesion.mode === 'fiesta' && reparto.length > 0 && (
+                  <span className="carta__reparto">
+                    Le toca a {reparto.map((j) => j.name).join(' y ')}
+                  </span>
+                )}
+              </div>
             </div>
 
             {sesion.notice && <div className="aviso">{sesion.notice}</div>}
@@ -180,7 +210,7 @@ export function JuegoScreen({ onSalir, onTienda, onLimites }: Props) {
             className="boton boton--ancho boton--grande"
             onClick={() => dispatch({ type: 'game/endTurn' })}
           >
-            Pasar el turno a {pareja.name}
+            Pasar el turno a {siguiente.name}
           </button>
         )}
 

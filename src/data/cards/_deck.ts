@@ -1,10 +1,11 @@
 import type { CardType, Level, PlayCard } from '../../types';
 
-type Extra = Pick<PlayCard, 'tags' | 'actorGender' | 'targetGender'>;
+type Extra = Pick<PlayCard, 'tags' | 'actorGender' | 'targetGender' | 'minPlayers' | 'pairing'>;
 
 /**
- * Cada carta se escribe como [nivel, texto] o [nivel, texto, { tags, actorGender, targetGender }].
- * En el texto puedes usar {actor}, {pareja}, {a} y {p} (ver engine/text.ts).
+ * Cada carta se escribe como [nivel, texto] o [nivel, texto, { tags, actorGender, ... }].
+ * En el texto puedes usar {actor}, {pareja}, {otro}, {otro2} y sus terminaciones
+ * {a}, {p}, {o} y {o2} (ver engine/text.ts).
  */
 export type Entry = [Level, string] | [Level, string, Extra];
 

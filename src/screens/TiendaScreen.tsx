@@ -7,7 +7,7 @@ import type { PlayerId, ShopItem } from '../types';
 export function TiendaScreen({ onVolver }: { onVolver: () => void }) {
   const { state, dispatch } = useGame();
   const sesion = state.session;
-  const [comprador, setComprador] = useState<PlayerId>(sesion?.turn ?? 'p1');
+  const [comprador, setComprador] = useState<PlayerId>(sesion?.turn ?? '');
   const [canjeando, setCanjeando] = useState<string | null>(null);
 
   const articulos = useMemo(() => {
@@ -36,8 +36,12 @@ export function TiendaScreen({ onVolver }: { onVolver: () => void }) {
     );
   }
 
-  const jugador = sesion.players.find((j) => j.id === comprador)!;
+  // Si el vale se compró y luego se cambió de partida, se cae al jugador del turno.
+  const jugador = sesion.players.find((j) => j.id === comprador) ?? sesion.players[0];
   const valeCanjeando = sesion.vouchers.find((v) => v.id === canjeando);
+  const dueñoDelVale = valeCanjeando && sesion.players.find((j) => j.id === valeCanjeando.ownerId);
+  const otroDeLaPareja =
+    valeCanjeando && sesion.players.find((j) => j.id !== valeCanjeando.ownerId);
 
   return (
     <div className="pantalla">
@@ -51,13 +55,13 @@ export function TiendaScreen({ onVolver }: { onVolver: () => void }) {
         </div>
       </div>
 
-      <div className="opciones">
+      <div className="opciones opciones--jugadores">
         {sesion.players.map((j) => (
           <button
             type="button"
             key={j.id}
             className="opcion"
-            data-activa={j.id === comprador}
+            data-activa={j.id === jugador.id}
             onClick={() => setComprador(j.id)}
           >
             {j.name} · ♥ {j.intimidad}
@@ -66,11 +70,11 @@ export function TiendaScreen({ onVolver }: { onVolver: () => void }) {
       </div>
 
       <div className="scroll">
-        {sesion.vouchers.filter((v) => v.ownerId === comprador).length > 0 && (
+        {sesion.vouchers.filter((v) => v.ownerId === jugador.id).length > 0 && (
           <>
             <p className="contador">Vales de {jugador.name}</p>
             {sesion.vouchers
-              .filter((v) => v.ownerId === comprador)
+              .filter((v) => v.ownerId === jugador.id)
               .map((vale) => (
                 <div className={vale.usedAt ? 'vale vale--usado' : 'vale'} key={vale.id}>
                   <div className="vale__texto">
@@ -108,7 +112,7 @@ export function TiendaScreen({ onVolver }: { onVolver: () => void }) {
                 type="button"
                 className="boton boton--chico"
                 disabled={!alcanza}
-                onClick={() => dispatch({ type: 'shop/buy', item, playerId: comprador })}
+                onClick={() => dispatch({ type: 'shop/buy', item, playerId: jugador.id })}
               >
                 {alcanza ? `Comprar para ${jugador.name}` : `Faltan ♥ ${item.cost - jugador.intimidad}`}
               </button>
@@ -130,8 +134,9 @@ export function TiendaScreen({ onVolver }: { onVolver: () => void }) {
         >
           <p className="texto">{porId[valeCanjeando.itemId]?.description}</p>
           <p className="subtitulo">
-            {sesion.players.find((j) => j.id !== valeCanjeando.ownerId)!.name} tiene que cumplirlo
-            ahora.
+            {sesion.mode === 'fiesta'
+              ? `${dueñoDelVale?.name ?? 'Quien lo compró'} elige a quién de la mesa se lo pide, y esa persona lo cumple ahora.`
+              : `${otroDeLaPareja?.name ?? 'La otra persona'} tiene que cumplirlo ahora.`}
           </p>
         </Modal>
       )}

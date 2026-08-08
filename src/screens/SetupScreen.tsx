@@ -29,7 +29,7 @@ export function SetupScreen({ onEmpezar, onVolver }: Props) {
       ...j,
       name: j.name.trim() || (i === 0 ? 'Jugador 1' : 'Jugador 2'),
     })) as [Player, Player];
-    dispatch({ type: 'game/start', players: limpios });
+    dispatch({ type: 'game/start', mode: 'pareja', pairing: 'mix', players: limpios });
     onEmpezar();
   };
 
@@ -39,7 +39,7 @@ export function SetupScreen({ onEmpezar, onVolver }: Props) {
         <button type="button" className="boton-volver" onClick={onVolver} aria-label="Volver">
           ←
         </button>
-        <h2>¿Quiénes juegan?</h2>
+        <h2>¿Quiénes son la pareja?</h2>
       </div>
 
       <div className="scroll">

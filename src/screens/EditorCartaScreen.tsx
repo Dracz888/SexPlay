@@ -58,8 +58,10 @@ export function EditorCartaScreen({ carta, onListo }: Props) {
             maxLength={400}
           />
           <p className="contador">
-            Escribe <strong>{'{pareja}'}</strong> donde quieras que salga el nombre del otro, y{' '}
-            <strong>{'{actor}'}</strong> para el nombre de quien tiene el turno.
+            Escribe <strong>{'{pareja}'}</strong> donde quieras que salga el nombre de a quien le
+            toca, y <strong>{'{actor}'}</strong> para el nombre de quien tiene el turno. En el modo
+            Fiesta también puedes usar <strong>{'{otro}'}</strong> y <strong>{'{otro2}'}</strong>{' '}
+            para meter a una tercera y a una cuarta persona de la mesa.
           </p>
         </div>
 
@@ -118,7 +120,9 @@ export function EditorCartaScreen({ carta, onListo }: Props) {
             ))}
           </select>
           <p className="contador">
-            Si esa categoría está apagada en la lista de límites, la carta no va a salir.
+            Si esa categoría está apagada en la lista de límites, la carta no va a salir. La
+            categoría Fiesta y las cartas que nombran a {'{otro}'} solo salen en las partidas de
+            tres personas o más.
           </p>
         </div>
 

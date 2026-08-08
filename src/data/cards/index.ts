@@ -9,6 +9,7 @@ import { cuerpo } from './cuerpo';
 import { dirtytalk } from './dirtytalk';
 import { dominacion } from './dominacion';
 import { fantasias } from './fantasias';
+import { fiesta } from './fiesta';
 import { fotos } from './fotos';
 import { juguetes } from './juguetes';
 import { lenceria } from './lenceria';
@@ -24,6 +25,7 @@ import { striptease } from './striptease';
 
 /** El mazo base completo. Las cartas de la pareja se suman a esto en tiempo de ejecución. */
 export const BASE_CARDS: PlayCard[] = [
+  ...fiesta,
   ...besos,
   ...cuerpo,
   ...oral,

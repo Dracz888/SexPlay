@@ -5,7 +5,9 @@ import { GestorCartasScreen } from './screens/GestorCartasScreen';
 import { JuegoScreen } from './screens/JuegoScreen';
 import { LimitesScreen } from './screens/LimitesScreen';
 import { MenuScreen } from './screens/MenuScreen';
+import { ModoScreen } from './screens/ModoScreen';
 import { SetupScreen } from './screens/SetupScreen';
+import { SetupFiestaScreen } from './screens/SetupFiestaScreen';
 import { SolicitudesScreen } from './screens/SolicitudesScreen';
 import { ConfiguracionScreen } from './screens/ConfiguracionScreen';
 import { TiendaScreen } from './screens/TiendaScreen';
@@ -17,7 +19,9 @@ export type Pantalla =
   | 'advertencia'
   | 'limites'
   | 'menu'
+  | 'modo'
   | 'setup'
+  | 'setup-fiesta'
   | 'juego'
   | 'tienda'
   | 'configuracion'
@@ -67,14 +71,28 @@ export function App() {
 
       {pantalla === 'menu' && (
         <MenuScreen
-          onJugar={() => setPantalla(state.session ? 'juego' : 'setup')}
-          onNuevaPartida={() => setPantalla('setup')}
+          onJugar={() => setPantalla(state.session ? 'juego' : 'modo')}
+          onNuevaPartida={() => setPantalla('modo')}
           onConfiguracion={() => setPantalla('configuracion')}
         />
       )}
 
+      {pantalla === 'modo' && (
+        <ModoScreen
+          onElegir={(modo) => setPantalla(modo === 'fiesta' ? 'setup-fiesta' : 'setup')}
+          onVolver={() => setPantalla('menu')}
+        />
+      )}
+
       {pantalla === 'setup' && (
-        <SetupScreen onEmpezar={() => setPantalla('juego')} onVolver={() => setPantalla('menu')} />
+        <SetupScreen onEmpezar={() => setPantalla('juego')} onVolver={() => setPantalla('modo')} />
+      )}
+
+      {pantalla === 'setup-fiesta' && (
+        <SetupFiestaScreen
+          onEmpezar={() => setPantalla('juego')}
+          onVolver={() => setPantalla('modo')}
+        />
       )}
 
       {pantalla === 'juego' && (

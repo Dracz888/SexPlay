@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - claude/sexplay-couple-game-q6kd40
+      - claude/party-mode-questions-challenges-9uynrd
   workflow_dispatch:
 
 # Permisos que necesita la publicación en Pages.

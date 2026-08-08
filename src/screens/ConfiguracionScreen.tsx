@@ -105,6 +105,13 @@ export function ConfiguracionScreen({
           <div>
             <strong>Cómo funciona el juego</strong>
             <p className="articulo__desc" style={{ marginTop: 6 }}>
+              Al darle a Jugar eligen modo: <strong>Pareja</strong>, que son ustedes dos, o{' '}
+              <strong>Fiesta</strong>, donde agregan a toda la gente que quieran y el juego reparte a
+              quién le toca en cada carta. En Fiesta además eligen el reparto:{' '}
+              <strong>Hetero</strong> para que solo te toque con alguien del sexo opuesto, o{' '}
+              <strong>Mix</strong> para que te pueda tocar con cualquiera.
+            </p>
+            <p className="articulo__desc" style={{ marginTop: 6 }}>
               Cada uno tiene su turno. En nivel 1 sale directo una carta de nivel 1. Del nivel 2 al 4
               se lanza un dado con tantas caras como el nivel, y lo que salga es el nivel de la carta.
               En nivel 5 el dado es de 6 caras: del 1 al 5 sale carta y con el 6 se gana Intimidad

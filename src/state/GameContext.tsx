@@ -11,7 +11,16 @@ import { buildAvailableCards } from '../engine/deck';
 import type { DrawResult } from '../engine/deck';
 import { INTIMACY_PER_SIX } from '../engine/dice';
 import type { RollResult } from '../engine/dice';
-import type { Level, PersistedState, PlayCard, Player, PlayerId, ShopItem } from '../types';
+import type {
+  GameMode,
+  Level,
+  Pairing,
+  PersistedState,
+  PlayCard,
+  Player,
+  PlayerId,
+  ShopItem,
+} from '../types';
 import { allLimitsOn, clearState, emptyLimits, initialState, loadState, saveState } from './storage';
 
 export type Action =
@@ -19,7 +28,7 @@ export type Action =
   | { type: 'limits/allowAll' }
   | { type: 'limits/clearAll' }
   | { type: 'onboarding/done' }
-  | { type: 'game/start'; players: [Player, Player] }
+  | { type: 'game/start'; mode: GameMode; pairing: Pairing; players: Player[] }
   | { type: 'game/setLevel'; level: Level }
   | { type: 'game/rolled'; roll: RollResult; draw: DrawResult | null }
   | { type: 'game/endTurn' }
@@ -35,7 +44,11 @@ export type Action =
   | { type: 'data/import'; state: PersistedState }
   | { type: 'data/reset' };
 
-const other = (id: PlayerId): PlayerId => (id === 'p1' ? 'p2' : 'p1');
+/** A quién le toca después: se va rotando en el orden en que se apuntaron. */
+const nextTurn = (players: Player[], id: PlayerId): PlayerId => {
+  const indice = players.findIndex((p) => p.id === id);
+  return players[(indice + 1) % players.length].id;
+};
 
 export function reducer(state: PersistedState, action: Action): PersistedState {
   switch (action.type) {
@@ -56,17 +69,24 @@ export function reducer(state: PersistedState, action: Action): PersistedState {
       return { ...state, onboardingDone: true };
 
     case 'game/start': {
-      const players = action.players.map((p) => ({ ...p, intimidad: 0 })) as [Player, Player];
+      const players = action.players.map((p) => ({ ...p, intimidad: 0 }));
+      const enPareja = action.mode === 'pareja';
+
       return {
         ...state,
-        lastPlayers: players,
+        lastPlayers: enPareja ? ([players[0], players[1]] as [Player, Player]) : state.lastPlayers,
+        lastPartyPlayers: enPareja ? state.lastPartyPlayers : players,
+        lastPairing: action.pairing,
         session: {
+          mode: action.mode,
+          pairing: enPareja ? 'mix' : action.pairing,
           players,
           level: 1,
-          turn: 'p1',
+          turn: players[0].id,
           phase: 'listo',
           roll: null,
           card: null,
+          cast: [],
           usedByBag: {},
           vouchers: [],
           turnCount: 0,
@@ -86,7 +106,7 @@ export function reducer(state: PersistedState, action: Action): PersistedState {
       if (action.roll.intimacy) {
         const players = s.players.map((p) =>
           p.id === s.turn ? { ...p, intimidad: p.intimidad + INTIMACY_PER_SIX } : p,
-        ) as [Player, Player];
+        );
         return {
           ...state,
           session: {
@@ -95,6 +115,7 @@ export function reducer(state: PersistedState, action: Action): PersistedState {
             phase: 'intimidad',
             roll: action.roll.value,
             card: null,
+            cast: [],
             notice: null,
           },
         };
@@ -108,7 +129,11 @@ export function reducer(state: PersistedState, action: Action): PersistedState {
             phase: 'listo',
             roll: action.roll.value,
             card: null,
-            notice: 'No hay ninguna carta disponible con los límites que eligieron. Revisen la lista en Configuración.',
+            cast: [],
+            notice:
+              s.mode === 'fiesta'
+                ? 'No hay ninguna carta que encaje con los límites y con la gente que hay en la mesa. Revisen la lista en Configuración o cambien el reparto.'
+                : 'No hay ninguna carta disponible con los límites que eligieron. Revisen la lista en Configuración.',
           },
         };
       }
@@ -120,6 +145,7 @@ export function reducer(state: PersistedState, action: Action): PersistedState {
           phase: 'carta',
           roll: action.roll.value,
           card: action.draw.card,
+          cast: action.draw.cast.map((p) => p.id),
           usedByBag: action.draw.usedByBag,
           notice: action.draw.notice,
         },
@@ -133,10 +159,11 @@ export function reducer(state: PersistedState, action: Action): PersistedState {
         ...state,
         session: {
           ...s,
-          turn: other(s.turn),
+          turn: nextTurn(s.players, s.turn),
           phase: 'listo',
           roll: null,
           card: null,
+          cast: [],
           notice: null,
           turnCount: s.turnCount + 1,
         },
@@ -145,9 +172,14 @@ export function reducer(state: PersistedState, action: Action): PersistedState {
 
     case 'game/finish': {
       const s = state.session;
+      if (!s) return { ...state, session: null };
+
+      const limpios = s.players.map((p) => ({ ...p, intimidad: 0 }));
       return {
         ...state,
-        lastPlayers: s ? (s.players.map((p) => ({ ...p, intimidad: 0 })) as [Player, Player]) : state.lastPlayers,
+        lastPlayers:
+          s.mode === 'pareja' ? ([limpios[0], limpios[1]] as [Player, Player]) : state.lastPlayers,
+        lastPartyPlayers: s.mode === 'fiesta' ? limpios : state.lastPartyPlayers,
         session: null,
       };
     }

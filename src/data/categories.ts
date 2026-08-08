@@ -6,6 +6,19 @@ import type { Category } from '../types';
  */
 export const CATEGORIES: Category[] = [
   {
+    id: 'fiesta',
+    label: 'Fiesta',
+    hint: 'Solo en modo Fiesta: retos y preguntas para el grupo, con tres personas o más.',
+    partyOnly: true,
+    extras: [
+      { id: 'fiesta.besos', label: 'Besos entre invitados (beso de tres)' },
+      { id: 'fiesta.desnudo', label: 'Desnudarse delante del grupo' },
+      { id: 'fiesta.masturbacion', label: 'Masturbarse delante de todos' },
+      { id: 'fiesta.cruzado', label: 'Contacto entre parejas distintas' },
+      { id: 'fiesta.sexo', label: 'Sexo delante del grupo' },
+    ],
+  },
+  {
     id: 'besos',
     label: 'Besos y caricias',
     hint: 'Besos en la boca, el cuello, la oreja; caricias por encima y por debajo de la ropa.',
@@ -149,6 +162,16 @@ export const CATEGORIES: Category[] = [
 export const CATEGORY_BY_ID: Record<string, Category> = Object.fromEntries(
   CATEGORIES.map((c) => [c.id, c]),
 );
+
+/** Categorías cuyas cartas solo salen en el modo Fiesta. */
+export const PARTY_ONLY_CATEGORIES: Set<string> = new Set(
+  CATEGORIES.filter((c) => c.partyOnly).map((c) => c.id),
+);
+
+/** Las que se ven en la lista de límites de una partida de este modo. */
+export function categoriesForMode(mode: 'pareja' | 'fiesta'): Category[] {
+  return mode === 'fiesta' ? CATEGORIES : CATEGORIES.filter((c) => !c.partyOnly);
+}
 
 /** Todos los interruptores de la lista: categorías + sus sub-opciones. */
 export const ALL_LIMIT_IDS: string[] = CATEGORIES.flatMap((c) => [
